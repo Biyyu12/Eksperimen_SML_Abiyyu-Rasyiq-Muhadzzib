@@ -1,3 +1,4 @@
+
 name: Automated Preprocessing Pipeline
 
 on:
@@ -13,8 +14,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -22,62 +21,31 @@ jobs:
           python-version: '3.10'
           
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pandas numpy scikit-learn imbalanced-learn
+        run: pip install pandas numpy scikit-learn imbalanced-learn
           
       - name: Run preprocessing
         run: |
-          cat << 'EOF' > run_preprocess.py
+          python << 'EOF'
           import pandas as pd
           import sys
-          sys.path.append('preprocessing')
+          sys.path.insert(0, 'preprocessing')
           from automate_Abiyyu_Rasyiq_Muhadzzib import preprocess_data
           
-          print('='*60)
-          print('Starting Automated Preprocessing Pipeline')
-          print('='*60)
-          
-          # Load raw data
-          print('\n[1/4] Loading raw dataset...')
           df = pd.read_csv('loan_data.csv')
-          print(f'✓ Raw data loaded: {df.shape}')
+          X_train, X_test, y_train, y_test, _ = preprocess_data(df)
           
-          # Run preprocessing
-          print('\n[2/4] Running preprocessing...')
-          X_train, X_test, y_train, y_test, fitted_objects = preprocess_data(df)
-          print(f'✓ Preprocessing completed')
-          print(f'  - Train shape: {X_train.shape}')
-          print(f'  - Test shape: {X_test.shape}')
-          
-          # Combine processed data
-          print('\n[3/4] Combining processed data...')
           X_train['loan_status'] = y_train.values
           X_test['loan_status'] = y_test.values
-          df_preprocessed = pd.concat([X_train, X_test], axis=0, ignore_index=True)
-          print(f'✓ Combined data shape: {df_preprocessed.shape}')
-          
-          # Save preprocessed data
-          print('\n[4/4] Saving preprocessed dataset...')
+          df_preprocessed = pd.concat([X_train, X_test], ignore_index=True)
           df_preprocessed.to_csv('loan_data_preprocessed.csv', index=False)
-          print('✓ Preprocessed data saved: loan_data_preprocessed.csv')
           
-          print('\n' + '='*60)
-          print('Pipeline completed successfully!')
-          print('='*60)
+          print(f'Preprocessing completed: {df_preprocessed.shape}')
           EOF
           
-          python run_preprocess.py
-          
-      - name: Commit preprocessed data
+      - name: Commit and push
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add loan_data_preprocessed.csv
-          git diff --quiet && git diff --staged --quiet || git commit -m "Auto: Update preprocessed dataset [skip ci]"
-          
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          git diff --staged --quiet || git commit -m "Auto: Update preprocessed dataset [skip ci]"
+          git push
