@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'loan_data_raw.csv'
+      - 'loan_data.csv'
       - 'preprocessing/automate_Abiyyu-Rasyiq-Muhadzzib.py'
   workflow_dispatch:
 
