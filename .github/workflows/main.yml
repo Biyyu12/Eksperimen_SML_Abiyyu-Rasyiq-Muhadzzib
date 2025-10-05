@@ -48,7 +48,8 @@ jobs:
           X_train['loan_status'] = y_train.values
           X_test['loan_status'] = y_test.values
           df_preprocessed = pd.concat([X_train, X_test], ignore_index=True)
-          df_preprocessed.to_csv('loan_data_preprocessed.csv', index=False)
+          output_path = 'preprocessing/loan_data_preprocessed.csv'
+          df_preprocessed.to_csv(output_path, index=False)
           
           print(f'Preprocessing completed: {df_preprocessed.shape}')
           EOF
@@ -57,6 +58,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add loan_data_preprocessed.csv
+          git add preprocessing/loan_data_preprocessed.csv
           git diff --staged --quiet || git commit -m "Auto: Update preprocessed dataset [skip ci]"
           git push
