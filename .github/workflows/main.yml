@@ -36,7 +36,7 @@ jobs:
           
           spec = importlib.util.spec_from_file_location(
               "automate_module", 
-              "preprocessing/automate_Abiyyu-Rasyiq-Muhadzzib.py"
+              "preprocessing/automate_Abiyyu_Rasyiq_Muhadzzib.py"
           )
           automate_module = importlib.util.module_from_spec(spec)
           spec.loader.exec_module(automate_module)
